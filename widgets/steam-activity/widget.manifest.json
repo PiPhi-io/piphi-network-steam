@@ -7,7 +7,10 @@
   "binding_modes": ["read"],
   "value_kinds": ["boolean", "numeric", "text"],
   "capability_requirements": ["is_online", "is_in_game", "persona_state", "current_game_name", "recent_playtime_minutes", "owned_game_count"],
-  "sdk_compatibility": {"minimum": "0.4.0"},
+  "sdk_compatibility": {"minimum": "0.6.1"},
+  "interaction_targets": [
+    {"id": "steam-activity-card", "label": "Steam activity", "kind": "card", "allowed_actions": ["more-info", "popout", "refresh"], "default_action": "more-info"}
+  ],
   "conformance": {
     "accessibility": "wcag2.2-aa",
     "keyboard": true,

@@ -3,6 +3,8 @@ const LIFECYCLE = new Set(["loading", "empty", "live", "stale", "offline", "reco
 export function normalizeLifecycle(value) {
   const normalized = String(value || "").trim().toLowerCase();
   if (normalized === "snapshot" || normalized === "point") return "live";
+  if (normalized === "open") return "live";
+  if (normalized === "connecting" || normalized === "closed") return "reconnecting";
   return LIFECYCLE.has(normalized) ? normalized : "error";
 }
 
@@ -19,7 +21,20 @@ function cleanValue(value) {
 
 export function projectState(data, capabilityIds) {
   const source = data?.primaryState || data?.state || data?.value || data || {};
-  return Object.fromEntries(capabilityIds.map((id) => [id, cleanValue(source[id] ?? source[camelCase(id)])]));
+  const output = {};
+  if (Array.isArray(data?.states)) {
+    for (const item of data.states) {
+      const capabilityId = item?.capability_id || item?.capabilityId;
+      if (capabilityId) output[capabilityId] = cleanValue(item.value);
+    }
+  }
+  const primaryCapabilityId = data?.primaryState?.capability_id || data?.primaryState?.capabilityId;
+  if (primaryCapabilityId) output[primaryCapabilityId] = cleanValue(data.primaryState.value);
+  if (data?.capabilityId) output[data.capabilityId] = cleanValue(data.value);
+  for (const id of capabilityIds) {
+    if (output[id] === undefined) output[id] = cleanValue(source?.[id] ?? source?.[camelCase(id)]);
+  }
+  return output;
 }
 
 export function formatMinutes(value) {

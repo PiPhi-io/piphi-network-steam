@@ -70,6 +70,43 @@
     "steam.poll.failed"
   ],
   "widgets": [{"id": "io.piphi.steam.activity", "path": "widgets/steam-activity/widget.manifest.json"}],
+  "ui": {
+    "widget_packages": [{
+      "id": "io.piphi.steam.activity",
+      "name": "Steam activity",
+      "version": "0.1.0",
+      "entry": "/widgets/steam-activity/dist/widget.js",
+      "runtime": "prebuilt_bundle",
+      "certification": {
+        "verified_gates": ["runtime", "persistence", "binding", "states", "responsive", "themes", "accessibility", "save-reload", "performance"],
+        "evidence": {
+          "runtime": ["core-profile:sandbox-host-v1/runtime"],
+          "persistence": ["core-profile:sandbox-host-v1/persistence"],
+          "binding": ["widgets/steam-activity/test/widget.test.mjs"],
+          "states": ["widgets/steam-activity/test/widget.test.mjs"],
+          "responsive": ["widgets/steam-activity/test/widget.test.mjs"],
+          "themes": ["widgets/steam-activity/test/widget.test.mjs"],
+          "accessibility": ["widgets/steam-activity/test/widget.test.mjs"],
+          "save-reload": ["core-profile:sandbox-host-v1/save-reload"],
+          "performance": ["core-profile:sandbox-host-v1/performance"]
+        }
+      },
+      "binding_modes": ["read"],
+      "value_kinds": ["boolean", "numeric", "text"],
+      "capability_requirements": [
+        "is_online", "is_in_game", "persona_state", "current_game_name",
+        "recent_playtime_minutes", "owned_game_count"
+      ],
+      "sdk_compatibility": {"minimum": "0.5.1"},
+      "settings_schema_version": "1",
+      "settings": [
+        {"id": "title", "type": "text", "label": "Title", "default": "Steam activity"},
+        {"id": "device", "type": "device", "label": "Steam account", "required": true}
+      ],
+      "layout": {"min_height": 230, "default_height": 320, "max_height": 520},
+      "security": {"permissions": [], "sandbox": ["allow-scripts"], "csp": {"connect_src": []}}
+    }]
+  },
   "marketplace": {
     "metadata_version": 2,
     "display_name": "Steam",

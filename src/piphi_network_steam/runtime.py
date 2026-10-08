@@ -5,7 +5,7 @@ import json
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from piphi_runtime_kit_python import (
     AutomationActionRequest,
     AutomationActionResult,
@@ -68,6 +68,14 @@ config_sync = starter.config_sync
 steam_client = SteamWebAPIClient()
 router = APIRouter()
 automation_registry = AutomationRegistry()
+
+
+async def _refresh_all_state() -> None:
+    for config_id in registry.ids():
+        await _read_and_store(config_id)
+
+
+starter.state.provide(_refresh_all_state, source=INTEGRATION_ID)
 poll_tasks: dict[str, asyncio.Task[Any]] = {}
 poll_status: dict[str, dict[str, Any]] = {}
 
@@ -555,8 +563,21 @@ async def entities() -> dict[str, Any]:
 
 
 @router.get("/state")
-async def state() -> dict[str, Any]:
-    return {"state": registry.state_snapshots}
+async def state(
+    refresh: bool = Query(default=False),
+    refresh_request_id: str | None = Query(default=None),
+) -> dict[str, Any]:
+    try:
+        state_payload = await starter.state.response(
+            refresh=refresh,
+            refresh_request_id=refresh_request_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        **state_payload,
+        "state": registry.state_snapshots,
+    }
 
 
 @router.get("/events", response_model=IntegrationEventListResponse)
